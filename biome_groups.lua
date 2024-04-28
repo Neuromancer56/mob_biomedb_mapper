@@ -1,21 +1,5 @@
-local function logTable(tableToLog)
-    minetest.log("loggedTable", "Logging table contents:")
-    
-    -- Iterate over each key-value pair in the table
-    for key, value in pairs(tableToLog) do
-        -- Convert the value to a string for logging
-        local valueString = tostring(value)
-        
-        -- Log the key-value pair
-        minetest.log("loggedTable", key .. ": " .. valueString)
-    end
-    
-    minetest.log("loggedTable", "End of table logging.")
-end
-
-
 local function addGroupToNode(modname, nodename, groupname)
-
+	minetest.log("x","modname:"..modname.." nodename:"..nodename.." groupname:"..groupname)
     if minetest.get_modpath(modname) then
         local node_def = minetest.registered_nodes[modname .. ":" .. nodename]
 
@@ -46,44 +30,42 @@ function getNodesByGroup(group)
 end
 
 function addGroupToBiomeNode(node, group)
-	local modname = node.modname
-	local nodename = node.nodename
-	minetest.log("x", "modname:"..modname.." nodename:"..nodename.." group:"..group )
-	addGroupToNode(modname,nodename, group)
+	-- Find the position of the first colon
+	local colon_pos = string.find(node, ":")
+	if colon_pos then
+		-- Extract modname and nodename
+		local modname = string.sub(node, 1, colon_pos - 1)
+		local nodename = string.sub(node, colon_pos + 1)
+		-- minetest.log("x", "modname:"..modname.." nodename:"..nodename.." group:"..group )
+		if modname ~= "" and nodename ~= "" and group then
+			addGroupToNode(modname, nodename, group)
+		else
+			minetest.log("x", "Problem with node:"..node)
+		end
+	else
+		minetest.log("x", "Invalid node format:"..node)
+	end
 end
 
---[[
 local function biomesToGroups()
-	local groups = {"plains","forest"}
-	local biomes = biomedb.select(function(biome)
-		return biome.groups.forest and biome.heat_point >= 50
-	  end)
-
-	local nodes = biomes:node_top();
-	for group in groups do
-		for node in nodes do
-			addGroupToBiomeNode(node, group)
-		end
-	end
-end]]
-
-local function biomesToGroups()
-    minetest.log("x", "started biomesToGroups")
+    --minetest.log("x", "started biomesToGroups")
     local biomes = biomedb.select(function(biome)
 		return biome
     end)
 	biomes:foreach(function(biome)
         local groups = biome.groups
 		local node_top = biome.node_top
-		minetest.log("x", "biome:"..biome.name)
-		if node_top then
-            minetest.log("x", "node_top:" .. node_top)
-        end
-		 logTable(groups)
+		--minetest.log("x", "biome:"..biome.name)
+		--if node_top then
+        --    minetest.log("x", "node_top:" .. node_top)
+        --end
+		 --logTable(groups)
 		for group, _ in pairs(groups) do
 		--logTable(group)
             --for _, node in ipairs(nodes) do
+			if node_top and group then
                 addGroupToBiomeNode(node_top, group)
+			end
            -- end
         end
 	end)
