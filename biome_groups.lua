@@ -1,5 +1,5 @@
 local function addGroupToNode(modname, nodename, groupname)
-	minetest.log("x","modname:"..modname.." nodename:"..nodename.." groupname:"..groupname)
+	--minetest.log("x","modname:"..modname.." nodename:"..nodename.." groupname:"..groupname)
     if minetest.get_modpath(modname) then
         local node_def = minetest.registered_nodes[modname .. ":" .. nodename]
 
